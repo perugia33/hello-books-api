@@ -2,6 +2,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+
+# postgresql+psycopg2://postgres:postgres@localhost:5432/hello_books_development
+
 db = SQLAlchemy()
 migrate = Migrate()
 
@@ -9,7 +12,7 @@ def create_app(test_config=None):
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/hello_books_development'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@Alocalhost:5432/helloAA_books_development'
 
     # Import models here
     from app.models.book import Book

@@ -1,7 +1,7 @@
-
+from app import db
+from app.models.book import Book
 from os import abort
-from flask import Blueprint, jsonify, abort, make_response
-
+from flask import Blueprint, jsonify, abort, make_response,request
 # class Book:
 #     def __init__(self, id, title, description):
 #         self.id = id
@@ -15,6 +15,31 @@ from flask import Blueprint, jsonify, abort, make_response
 # ]
 
 books_bp = Blueprint("books_bp", __name__, url_prefix="/books")
+# BOOKS blueprint object
+@books_bp.route("", methods= ["POST"])
+# DECORATER TO DEFINE ROUTE
+def handle_book():
+    request_body = request.get_json()
+    new_book = Book(
+        title = request_body["title"],
+        description = request_body["description"]
+    )
+    # handling book request and creating new instance of book
+    db.session.add(new_book)
+    # HAVE SQLAlchemy to take book instance	
+    # and add to database	
+    # staging instance new-book
+    db.session.commit()
+    # commit instance
+
+    return make_response(
+        f"Book {new_book.title} created", 201
+    )
+
+
+
+
+
 
 #def validate_book(book_id):
 #    try:
