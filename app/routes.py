@@ -18,50 +18,54 @@ from flask import Blueprint, jsonify, abort, make_response, request
 
 books_bp = Blueprint("books_bp", __name__, url_prefix="/books")
 
-@books_bp.route("", methods=["POST"])
+@books_bp.route("", methods=["GET","POST"])
 def handle_books():
-    request_body = request.get_json()
-    new_book = Book(title=request_body["title"],
-                    description=request_body["description"])
+    if request.method == "GET":							
+        books = Book.query.all()						
+        books_response = []						
+        for book in books:						
+            books_response.append({					
+                "id": book.id,				
+                "title": book.title,				
+                "description": book.description				
+            })					
+        return jsonify(books_response)						
 
-    db.session.add(new_book)
-    db.session.commit()
+    elif request.method == "POST":			
+        request_body = request.get_json()
+        new_book = Book(title=request_body["title"],
+                        description=request_body["description"])
 
-    return make_response(f"Book {new_book.title} successfully created", 201)
+        db.session.add(new_book)
+        db.session.commit()
 
-#def validate_book(book_id):
-#    try:
-#        book_id = int(book_id)
-#    except:
-#        abort(make_response({"message":f"book {book_id} invalid"}, 400))
-#
-#    for book in books:
-#        if book.id == book_id:
-#            return book
-#
-#    abort(make_response({"message":f"book {book_id} not found"}, 404))
-        
+        return make_response(f"Book {new_book.title} successfully created", 201)
 
-# @books_bp.route("", methods=["GET"])
-# def handle_books():
-#     books_response = []
-#     for book in books:
-#         books_response.append(
-#             {
-#                 "id": book.id,
-#                 "title": book.title,
-#                 "description": book.description
-#             }
-#         )
-#     return jsonify(books_response)
 
-# @books_bp.route("/<book_id>", methods=["GET"])
-# def handle_book(book_id):
-#     book = validate_book(book_id)
-#
-#     return {
-#           "id": book.id,
-#           "title": book.title,
-#           "description": book.description,
-#     }
 
+@books_bp.route("/<book_id>", methods=["GET"])	
+def handle_planet(book_id):
+    book = validate_book(book_id)
+   
+    return {
+        "id": book.id,					
+        "title": book.title,					
+        "description": book.description,
+    }
+
+
+
+def validate_book(book_id):
+   try:
+       book_id = int(book_id)
+   except:
+       abort(make_response({"message":f"book {book_id} invalid"}, 400))
+   
+   book = Book.query.get(book_id)
+     
+   if not book:
+      abort(make_response({"message":f"book {book_id} not found"}, 404))
+                
+   return book
+
+			   
