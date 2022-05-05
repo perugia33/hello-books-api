@@ -30,10 +30,19 @@ def create_book():
 
     return make_response(f"Book {new_book.title} successfully created", 201)
 
+
 @books_bp.route("", methods=["GET"])
 def read_all_books():
     books_response = []
-    books = Book.query.all()
+
+    title_query = request.args.get("title")
+    if title_query:
+        books = Book.query.filter_by(title = title_query)
+    # check to see if a query param is in the URl
+    # Look through all the books and filter by keyword argument
+    else:
+        books = Book.query.all()
+        
     for book in books:
         books_response.append(
             {
@@ -44,9 +53,12 @@ def read_all_books():
         )
     return jsonify(books_response)
 
+
 @books_bp.route("/<book_id>", methods=["GET"])
 def read_one_book(book_id):
+
     book = validate_book(book_id)
+    
     return {
             "id": book.id,
             "title": book.title,
@@ -65,6 +77,7 @@ def update_book(book_id):
     db.session.commit()
 
     return make_response(f"Book #{book.id} successfully updated")
+
 
 @books_bp.route("/<book_id>", methods=["DELETE"])
 def delete_book(book_id):
